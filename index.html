@@ -153,19 +153,22 @@
                 setTimeout(() => card.classList.add("show"), i * CONFIG.startDelayMs);
             }
         }
+function setupAudio() {
+  const btn = document.getElementById("audioBtn");
+  const audio = document.getElementById("bgm");
 
-        function setupAudio() {
-            const btn = document.getElementById("audioBtn");
-            const audio = document.getElementById("bgm");
-            btn.addEventListener("click", async () => {
-                try {
-                    await audio.play();
-                    btn.style.display = "none";
-                } catch (e) {
-                    btn.textContent = "请再点一次开启";
-                }
-            });
-        }
+  const tryPlay = async () => {
+    try {
+      await audio.play();
+      btn.style.display = "none";
+    } catch (e) {
+      btn.textContent = "请再点一次开启";
+    }
+  };
+
+  btn.addEventListener("click", tryPlay);
+  document.body.addEventListener("click", tryPlay, { once: true });
+}
 
         window.addEventListener("load", () => {
             start();
