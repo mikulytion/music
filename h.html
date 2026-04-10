@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>给你的小心心</title>
+    <style>
+        :root {
+            --bg: #0f1220;
+            --card-w: 240px;
+            --card-h: 64px;
+            --font: "微软雅黑", "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top, #1b1f3a, #0f1220 55%);
+            overflow: hidden;
+            font-family: var(--font);
+        }
+
+        #stage {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .card {
+            position: absolute;
+            width: var(--card-w);
+            height: var(--card-h);
+            line-height: var(--card-h);
+            text-align: center;
+            border-radius: 14px;
+            color: #333;
+            font-size: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+            user-select: none;
+            transform: translate(-50%, -50%);
+            transition: transform 0.6s ease, opacity 0.6s ease;
+            opacity: 0;
+            padding: 0 12px;
+            box-sizing: border-box;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card.show {
+            opacity: 1;
+        }
+
+        .hint {
+            position: absolute;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            color: #cfd4ff;
+            font-size: 14px;
+            opacity: 0.7;
+            letter-spacing: 1px;
+        }
+
+        .audio-btn {
+            position: absolute;
+            right: 16px;
+            bottom: 16px;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.92);
+            color: #333;
+            font-size: 14px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="stage"></div>
+    <div class="hint">点开即是心意 💗</div>
+    <button class="audio-btn" id="audioBtn">点击开启音乐</button>
+    <audio id="bgm" src="music.mp3" preload="auto" loop></audio>
+
+    <script>
+        const CONFIG = {
+            windowCount: 90,
+            heartScale: 0.38,
+            startDelayMs: 90,
+            jitter: 6,
+        };
+
+        const TIPS = [
+            "多喝水哦~，保持微笑呀", "每天都要元气满满", "记得吃水果",
+            "保持好心情", "好好爱自己", "我想你了", "梦想成真",
+            "期待下一次见面", "早日结束异地", "顺顺利利", "早点休息",
+            "愿所有烦恼都消失", "别熬夜", "今天过得开心嘛",
+            "天冷了，多穿衣服"
+        ];
+
+        const BG_COLORS = [
+            "lightpink", "skyblue", "lightgreen", "lavender", "lightyellow",
+            "plum", "coral", "bisque", "aquamarine", "mistyrose",
+            "honeydew", "lavenderblush", "oldlace"
+        ];
+
+        function getHeartCoord(i, total, width, height) {
+            const t = 2 * Math.PI * i / total;
+            const x = 16 * Math.pow(Math.sin(t), 3);
+            const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+
+            const scale = Math.min(width, height) * CONFIG.heartScale / 16;
+            const cx = width / 2;
+            const cy = height / 2;
+
+            let fx = cx + x * scale;
+            let fy = cy - y * scale; // y轴反转
+
+            fx += (Math.random() * 2 - 1) * CONFIG.jitter;
+            fy += (Math.random() * 2 - 1) * CONFIG.jitter;
+            return { x: fx, y: fy };
+        }
+
+        function createCard(text, color) {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.textContent = text;
+            card.style.background = color;
+            return card;
+        }
+
+        function start() {
+            const stage = document.getElementById("stage");
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            for (let i = 0; i < CONFIG.windowCount; i++) {
+                const tip = TIPS[Math.floor(Math.random() * TIPS.length)];
+                const color = BG_COLORS[Math.floor(Math.random() * BG_COLORS.length)];
+                const card = createCard(tip, color);
+
+                const { x, y } = getHeartCoord(i, CONFIG.windowCount, width, height);
+                card.style.left = `${x}px`;
+                card.style.top = `${y}px`;
+
+                stage.appendChild(card);
+                setTimeout(() => card.classList.add("show"), i * CONFIG.startDelayMs);
+            }
+        }
+
+        function setupAudio() {
+            const btn = document.getElementById("audioBtn");
+            const audio = document.getElementById("bgm");
+            btn.addEventListener("click", async () => {
+                try {
+                    await audio.play();
+                    btn.style.display = "none";
+                } catch (e) {
+                    btn.textContent = "请再点一次开启";
+                }
+            });
+        }
+
+        window.addEventListener("load", () => {
+            start();
+            setupAudio();
+        });
+        window.addEventListener("resize", () => {
+            const stage = document.getElementById("stage");
+            stage.innerHTML = "";
+            start();
+        });
+    </script>
+</body>
+
+</html
